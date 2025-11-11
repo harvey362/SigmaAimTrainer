@@ -1,5 +1,7 @@
 import { Engine } from './Engine';
 import { FirstPersonControls } from './Controls';
+import { SessionManager } from './SessionManager';
+import { LivesSystem } from './LivesSystem';
 import { GameSettings, GameState, SessionConfig, WeaponModifiers } from '@/types';
 import { ProjectileManager } from '@/physics/ProjectileManager';
 import { WeaponSystem } from '@/physics/WeaponSystem';
@@ -18,6 +20,8 @@ export class Game {
   private projectileManager: ProjectileManager | null = null;
   private weaponSystem: WeaponSystem | null = null;
   private targetManager: TargetManager | null = null;
+  private sessionManager: SessionManager;
+  private livesSystem: LivesSystem;
 
   // Session stats
   private currentSession: SessionConfig | null = null;
@@ -41,11 +45,37 @@ export class Game {
       this.settings.controls.mouseSensitivity
     );
 
+    // Initialize session and lives systems
+    this.sessionManager = new SessionManager();
+    this.livesSystem = new LivesSystem(false, 3);
+
+    // Setup session callbacks
+    this.setupSessionCallbacks();
+
     // Initialize gameplay systems
     this.initGameplaySystems();
 
     // Setup event listeners
     this.setupEventListeners();
+  }
+
+  private setupSessionCallbacks(): void {
+    // Handle session end
+    this.sessionManager.onSessionEnd((reason) => {
+      console.log(`Session ended: ${reason}`);
+      this.handleSessionEnd(reason);
+    });
+
+    // Handle life lost
+    this.livesSystem.onLifeLost((livesRemaining) => {
+      console.log(`Life lost! Lives remaining: ${livesRemaining}`);
+    });
+
+    // Handle all lives lost
+    this.livesSystem.onAllLivesLost(() => {
+      console.log('All lives lost!');
+      this.sessionManager.endSession('lives');
+    });
   }
 
   private initGameplaySystems(): void {
@@ -212,12 +242,17 @@ export class Game {
   }
 
   private updateGameplay(delta: number): void {
+    // Update session manager
+    this.sessionManager.update(delta);
+
     // Update weapon system
     this.weaponSystem?.update(delta);
 
     // Update projectiles with hit detection
     this.projectileManager?.update(delta, (projectileId, hitInfo) => {
       this.handleHit(projectileId, hitInfo);
+    }, (projectileId) => {
+      this.handleMiss(projectileId);
     });
 
     // Update targets
@@ -236,6 +271,24 @@ export class Game {
     }
   }
 
+  private handleMiss(projectileId: string): void {
+    // Projectile expired without hitting anything
+    this.sessionStats.misses++;
+    this.livesSystem.recordMiss();
+  }
+
+  private handleSessionEnd(reason: 'time' | 'lives' | 'manual'): void {
+    console.log(`Session ended due to: ${reason}`);
+    this.gameState = 'results';
+    this.weaponSystem?.stopFiring();
+    this.controls.unlock();
+
+    // TODO: Show results screen
+    // For now, just log the stats
+    const stats = this.getSessionStats();
+    console.log('Session Stats:', stats);
+  }
+
   private startDemoMode(): void {
     // Spawn initial targets for demo/testing
     this.gameState = 'menu';
@@ -247,6 +300,8 @@ export class Game {
   public pause(): void {
     if (this.gameState !== 'playing') return;
     this.gameState = 'paused';
+    this.sessionManager.pause();
+    this.weaponSystem?.stopFiring();
     this.controls.unlock();
     // Show pause menu UI (to be implemented)
     console.warn('Game paused');
@@ -255,7 +310,37 @@ export class Game {
   public resume(): void {
     if (this.gameState !== 'paused') return;
     this.gameState = 'playing';
+    this.sessionManager.resume();
     console.warn('Game resumed');
+  }
+
+  public startNewSession(config: SessionConfig): void {
+    // Reset stats
+    this.sessionStats = { hits: 0, misses: 0, shots: 0 };
+
+    // Configure systems
+    this.currentSession = config;
+    this.sessionManager.startSession(config);
+    this.livesSystem.reset(
+      config.challengeModifiers.livesEnabled,
+      config.challengeModifiers.livesCount || 3
+    );
+
+    // Update target settings
+    this.targetManager?.updateSettings(config.targetSettings);
+
+    // Update weapon modifiers
+    this.weaponSystem?.setModifiers(config.weaponModifiers);
+
+    // Clear existing targets and spawn new ones
+    this.targetManager?.clear();
+    for (let i = 0; i < config.targetSettings.maxTargets; i++) {
+      this.targetManager?.spawnTarget();
+    }
+
+    // Start playing
+    this.gameState = 'playing';
+    console.log('Session started with config:', config);
   }
 
   public setState(state: GameState): void {
@@ -286,7 +371,16 @@ export class Game {
     return this.settings;
   }
 
-  public getSessionStats(): { hits: number; misses: number; shots: number; accuracy: number } {
+  public getSessionStats(): {
+    hits: number;
+    misses: number;
+    shots: number;
+    accuracy: number;
+    livesEnabled: boolean;
+    livesRemaining: number;
+    elapsedTime: number;
+    remainingTime: number;
+  } {
     const accuracy = this.sessionStats.shots > 0
       ? (this.sessionStats.hits / this.sessionStats.shots) * 100
       : 0;
@@ -294,6 +388,10 @@ export class Game {
     return {
       ...this.sessionStats,
       accuracy,
+      livesEnabled: this.livesSystem.isEnabled(),
+      livesRemaining: this.livesSystem.getLivesRemaining(),
+      elapsedTime: this.sessionManager.getElapsedTime(),
+      remainingTime: this.sessionManager.getRemainingTime(),
     };
   }
 

@@ -108,6 +108,46 @@ body.pointer-locked {
   font-size: 16px;
 }
 
+/* Timer Display */
+.timer-display {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-primary);
+  pointer-events: none;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  font-family: 'Courier New', monospace;
+}
+
+/* Lives Display */
+.lives-display {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  pointer-events: none;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+.lives-display span {
+  color: #ff4444;
+  font-size: 18px;
+  font-weight: 700;
+}
+
 /* Button styles */
 button {
   background: var(--color-primary);

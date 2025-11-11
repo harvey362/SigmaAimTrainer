@@ -66,7 +66,11 @@ export class ProjectileManager {
     this.projectiles.set(id, projectile);
   }
 
-  public update(delta: number, onHit?: (projectileId: string, hitInfo: HitInfo) => void): void {
+  public update(
+    delta: number,
+    onHit?: (projectileId: string, hitInfo: HitInfo) => void,
+    onMiss?: (projectileId: string) => void
+  ): void {
     const toRemove: string[] = [];
 
     this.projectiles.forEach((projectile, id) => {
@@ -151,8 +155,14 @@ export class ProjectileManager {
         toRemove.push(id);
 
         // Check for splash damage hits in area before imploding
+        let hadSplashHit = false;
         if (onHit) {
-          this.checkSplashDamage(projectile.mesh.position, id, onHit);
+          hadSplashHit = this.checkSplashDamage(projectile.mesh.position, id, onHit);
+        }
+
+        // If no splash hits, count as a miss
+        if (!hadSplashHit && onMiss) {
+          onMiss(id);
         }
       }
     });
@@ -171,8 +181,9 @@ export class ProjectileManager {
     position: THREE.Vector3,
     projectileId: string,
     onHit: (projectileId: string, hitInfo: HitInfo) => void
-  ): void {
+  ): boolean {
     const SPLASH_RADIUS = 3; // meters
+    let hitCount = 0;
 
     // Check all objects in scene for targets within splash radius
     this.scene.traverse((object) => {
@@ -184,9 +195,12 @@ export class ProjectileManager {
             position: position.clone(),
             isDirect: false,
           });
+          hitCount++;
         }
       }
     });
+
+    return hitCount > 0;
   }
 
   public clear(): void {

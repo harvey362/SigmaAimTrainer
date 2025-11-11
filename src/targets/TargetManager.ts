@@ -180,11 +180,36 @@ export class TargetManager {
     }
 
     if (this.settings.movementPattern === 'predictable') {
-      // Simple circular motion
-      return new THREE.Vector3(speed, 0, 0);
+      // Smooth horizontal circular motion
+      const angle = Math.random() * Math.PI * 2;
+      return new THREE.Vector3(
+        Math.cos(angle) * speed,
+        Math.sin(angle) * speed * 0.3,
+        Math.sin(angle) * speed
+      );
     }
 
-    // Random movement
+    if (this.settings.movementPattern === 'both') {
+      // Mix of predictable and random
+      if (Math.random() < 0.5) {
+        // Predictable circular pattern
+        const angle = Math.random() * Math.PI * 2;
+        return new THREE.Vector3(
+          Math.cos(angle) * speed,
+          Math.sin(angle) * speed * 0.3,
+          Math.sin(angle) * speed
+        );
+      } else {
+        // Random direction
+        return new THREE.Vector3(
+          (Math.random() - 0.5) * speed * 2,
+          (Math.random() - 0.5) * speed * 0.5,
+          (Math.random() - 0.5) * speed * 2
+        ).normalize().multiplyScalar(speed);
+      }
+    }
+
+    // Random movement (default)
     return new THREE.Vector3(
       (Math.random() - 0.5) * speed * 2,
       (Math.random() - 0.5) * speed * 0.5,

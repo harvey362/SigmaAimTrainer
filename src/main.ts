@@ -98,6 +98,8 @@ class App {
       if (!this.game) return;
 
       const stats = this.game.getSessionStats();
+
+      // Update stats display
       const hitsEl = document.getElementById('hits');
       const shotsEl = document.getElementById('shots');
       const accuracyEl = document.getElementById('accuracy');
@@ -105,7 +107,35 @@ class App {
       if (hitsEl) hitsEl.textContent = stats.hits.toString();
       if (shotsEl) shotsEl.textContent = stats.shots.toString();
       if (accuracyEl) accuracyEl.textContent = stats.accuracy.toFixed(1);
+
+      // Update timer display
+      const timerEl = document.getElementById('timer');
+      if (timerEl) {
+        if (stats.remainingTime === Infinity) {
+          // Untimed session - show elapsed time
+          timerEl.textContent = this.formatTime(stats.elapsedTime);
+        } else {
+          // Timed session - show remaining time
+          timerEl.textContent = this.formatTime(stats.remainingTime);
+        }
+      }
+
+      // Update lives display
+      const livesEl = document.getElementById('lives');
+      const livesDisplayEl = document.getElementById('lives-display');
+      if (stats.livesEnabled) {
+        if (livesDisplayEl) livesDisplayEl.style.display = 'block';
+        if (livesEl) livesEl.textContent = stats.livesRemaining.toString();
+      } else {
+        if (livesDisplayEl) livesDisplayEl.style.display = 'none';
+      }
     }, 100);
+  }
+
+  private formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
 }
 
