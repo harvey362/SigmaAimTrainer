@@ -31,6 +31,11 @@ export class Game {
     shots: 0,
   };
 
+  // UI Callbacks
+  private onPauseCallback?: () => void;
+  private onResumeCallback?: () => void;
+  private onSessionEndUICallback?: () => void;
+
   constructor(container: HTMLElement) {
     // Load or initialize default settings
     this.settings = this.loadSettings();
@@ -283,10 +288,21 @@ export class Game {
     this.weaponSystem?.stopFiring();
     this.controls.unlock();
 
-    // TODO: Show results screen
-    // For now, just log the stats
-    const stats = this.getSessionStats();
-    console.log('Session Stats:', stats);
+    if (this.onSessionEndUICallback) {
+      this.onSessionEndUICallback();
+    }
+  }
+
+  public onPause(callback: () => void): void {
+    this.onPauseCallback = callback;
+  }
+
+  public onResume(callback: () => void): void {
+    this.onResumeCallback = callback;
+  }
+
+  public onSessionEndUI(callback: () => void): void {
+    this.onSessionEndUICallback = callback;
   }
 
   private startDemoMode(): void {
@@ -303,15 +319,34 @@ export class Game {
     this.sessionManager.pause();
     this.weaponSystem?.stopFiring();
     this.controls.unlock();
-    // Show pause menu UI (to be implemented)
-    console.warn('Game paused');
+
+    if (this.onPauseCallback) {
+      this.onPauseCallback();
+    }
   }
 
   public resume(): void {
     if (this.gameState !== 'paused') return;
     this.gameState = 'playing';
     this.sessionManager.resume();
-    console.warn('Game resumed');
+
+    if (this.onResumeCallback) {
+      this.onResumeCallback();
+    }
+  }
+
+  public quitToMenu(): void {
+    this.gameState = 'menu';
+    this.sessionManager.endSession('manual');
+    this.weaponSystem?.stopFiring();
+    this.targetManager?.clear();
+    this.projectileManager?.clear();
+    this.controls.unlock();
+
+    // Spawn demo targets
+    for (let i = 0; i < 5; i++) {
+      this.targetManager?.spawnTarget();
+    }
   }
 
   public startNewSession(config: SessionConfig): void {

@@ -1,9 +1,13 @@
 import { Game } from './core/Game';
+import { MenuManager } from './ui/MenuManager';
+import { UIController } from './ui/UIController';
 import './style.css';
 
 // Main application entry point
 class App {
   private game: Game | null = null;
+  private menuManager: MenuManager | null = null;
+  private uiController: UIController | null = null;
   private loadingElement: HTMLElement | null = null;
 
   constructor() {
@@ -28,6 +32,13 @@ class App {
       // Initialize game
       this.game = new Game(appContainer);
       this.game.start();
+
+      // Initialize UI system
+      this.menuManager = new MenuManager();
+      this.uiController = new UIController(this.menuManager);
+
+      // Wire up UI callbacks
+      this.setupUICallbacks();
 
       // Hide loading screen
       this.hideLoading();
@@ -73,16 +84,47 @@ class App {
     }
   }
 
+  private setupUICallbacks(): void {
+    if (!this.game || !this.menuManager || !this.uiController) return;
+
+    // Handle start session from UI
+    this.menuManager.onStartSession((config) => {
+      this.game?.startNewSession(config);
+    });
+
+    // Handle resume from pause menu
+    this.menuManager.onResume(() => {
+      this.game?.resume();
+    });
+
+    // Handle quit to menu
+    this.menuManager.onQuit(() => {
+      this.game?.quitToMenu();
+    });
+
+    // Handle game pause event
+    this.game.onPause(() => {
+      this.uiController?.showPauseMenu();
+    });
+
+    // Handle session end
+    this.game.onSessionEndUI(() => {
+      const stats = this.game?.getSessionStats();
+      if (stats) {
+        this.uiController?.showResults(stats);
+      }
+    });
+  }
+
   private logWelcomeMessage(): void {
     console.log('%c🎯 Sigma Aim Trainer', 'font-size: 20px; font-weight: bold; color: #4a9eff;');
     console.log('%cVersion 1.0.0', 'font-size: 12px; color: #888;');
-    console.log('%cClick to lock pointer and start practicing!', 'font-size: 14px; color: #4a9eff;');
+    console.log('%cClick PLAY to start!', 'font-size: 14px; color: #4a9eff;');
     console.log('\n%cControls:', 'font-weight: bold;');
     console.log('  WASD / Arrow Keys - Move');
     console.log('  Mouse - Aim');
-    console.log('  Mouse Click - Fire (when implemented)');
+    console.log('  Left Mouse - Fire');
     console.log('  ESC - Pause Menu');
-    console.log('  Spacebar - Skip Countdown');
   }
 
   private setupDevHelpers(): void {

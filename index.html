@@ -73,6 +73,100 @@
         <div>Lives: <span id="lives">3</span></div>
       </div>
     </div>
+
+    <!-- Main Menu -->
+    <div id="main-menu" class="menu-screen">
+      <div class="menu-container">
+        <h1 class="menu-title">SIGMA AIM TRAINER</h1>
+        <div class="menu-buttons">
+          <button id="btn-play" class="menu-btn">PLAY</button>
+          <button id="btn-settings" class="menu-btn">SETTINGS</button>
+          <button id="btn-stats" class="menu-btn">STATS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Setup Menu (Session Configuration) -->
+    <div id="setup-menu" class="menu-screen" style="display: none;">
+      <div class="setup-container">
+        <h2 class="setup-title">SESSION SETUP</h2>
+        <div class="setup-content">
+          <!-- Session Type -->
+          <div class="setup-section">
+            <h3>Session Type</h3>
+            <div class="button-group">
+              <button class="setup-option active" data-session="untimed">Untimed</button>
+              <button class="setup-option" data-session="30s">30 Seconds</button>
+              <button class="setup-option" data-session="60s">1 Minute</button>
+            </div>
+          </div>
+
+          <!-- Target Settings -->
+          <div class="setup-section">
+            <h3>Target Movement</h3>
+            <div class="button-group">
+              <button class="setup-option active" data-movement="none">Stationary</button>
+              <button class="setup-option" data-movement="predictable">Predictable</button>
+              <button class="setup-option" data-movement="random">Random</button>
+            </div>
+          </div>
+
+          <!-- Lives System -->
+          <div class="setup-section">
+            <h3>Lives System</h3>
+            <div class="toggle-group">
+              <label class="toggle">
+                <input type="checkbox" id="lives-enabled">
+                <span class="toggle-slider"></span>
+              </label>
+              <input type="number" id="lives-count" value="3" min="1" max="10" disabled>
+            </div>
+          </div>
+        </div>
+
+        <div class="setup-actions">
+          <button id="btn-start-session" class="menu-btn primary">START</button>
+          <button id="btn-back-main" class="menu-btn secondary">BACK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pause Menu -->
+    <div id="pause-menu" class="menu-screen" style="display: none;">
+      <div class="menu-container">
+        <h2 class="menu-title">PAUSED</h2>
+        <div class="menu-buttons">
+          <button id="btn-resume" class="menu-btn">RESUME</button>
+          <button id="btn-quit" class="menu-btn">QUIT TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Menu -->
+    <div id="results-menu" class="menu-screen" style="display: none;">
+      <div class="results-container">
+        <h2 class="results-title">SESSION COMPLETE</h2>
+        <div class="results-stats">
+          <div class="stat-box">
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-value" id="result-accuracy">0%</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Hits</div>
+            <div class="stat-value" id="result-hits">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Shots</div>
+            <div class="stat-value" id="result-shots">0</div>
+          </div>
+        </div>
+        <div class="menu-buttons">
+          <button id="btn-restart" class="menu-btn primary">RESTART</button>
+          <button id="btn-back-menu" class="menu-btn">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
   </div>
   <script type="module" src="/src/main.ts"></script>
 </body>
