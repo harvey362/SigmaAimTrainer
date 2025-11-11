@@ -35,6 +35,9 @@ class App {
       // Log welcome message
       this.logWelcomeMessage();
 
+      // Start stats updater
+      this.startStatsUpdater();
+
       // Setup development helpers
       if (import.meta.env.DEV) {
         this.setupDevHelpers();
@@ -88,6 +91,21 @@ class App {
     console.log('\n%c[DEV MODE]', 'color: #ff9800; font-weight: bold;');
     console.log('Game instance available at: window.__GAME__');
     console.log('Example: __GAME__.getSettings()');
+  }
+
+  private startStatsUpdater(): void {
+    setInterval(() => {
+      if (!this.game) return;
+
+      const stats = this.game.getSessionStats();
+      const hitsEl = document.getElementById('hits');
+      const shotsEl = document.getElementById('shots');
+      const accuracyEl = document.getElementById('accuracy');
+
+      if (hitsEl) hitsEl.textContent = stats.hits.toString();
+      if (shotsEl) shotsEl.textContent = stats.shots.toString();
+      if (accuracyEl) accuracyEl.textContent = stats.accuracy.toFixed(1);
+    }, 100);
   }
 }
 

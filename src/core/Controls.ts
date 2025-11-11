@@ -109,22 +109,45 @@ export class FirstPersonControls {
 
     const moveSpeed = 10.0; // meters per second
 
+    // Apply friction
     this.velocity.x -= this.velocity.x * 10.0 * delta;
     this.velocity.z -= this.velocity.z * 10.0 * delta;
 
-    this.direction.z = Number(this.moveForward) - Number(this.moveBackward);
-    this.direction.x = Number(this.moveRight) - Number(this.moveLeft);
-    this.direction.normalize();
+    // Get camera's forward and right vectors (projected onto XZ plane)
+    const forward = new THREE.Vector3();
+    this.camera.getWorldDirection(forward);
+    forward.y = 0;
+    forward.normalize();
 
-    if (this.moveForward || this.moveBackward) {
-      this.velocity.z -= this.direction.z * moveSpeed * delta;
+    const right = new THREE.Vector3();
+    right.crossVectors(forward, new THREE.Vector3(0, 1, 0));
+    right.normalize();
+
+    // Calculate movement direction
+    this.direction.set(0, 0, 0);
+
+    if (this.moveForward) {
+      this.direction.add(forward);
     }
-    if (this.moveLeft || this.moveRight) {
-      this.velocity.x -= this.direction.x * moveSpeed * delta;
+    if (this.moveBackward) {
+      this.direction.sub(forward);
+    }
+    if (this.moveRight) {
+      this.direction.add(right);
+    }
+    if (this.moveLeft) {
+      this.direction.sub(right);
     }
 
-    this.camera.position.x += this.velocity.x * delta;
-    this.camera.position.z += this.velocity.z * delta;
+    // Normalize to prevent faster diagonal movement
+    if (this.direction.length() > 0) {
+      this.direction.normalize();
+      this.velocity.add(this.direction.multiplyScalar(moveSpeed * delta));
+    }
+
+    // Apply velocity to position
+    this.camera.position.x += this.velocity.x;
+    this.camera.position.z += this.velocity.z;
 
     // Keep camera at eye level
     this.camera.position.y = 1.6;
