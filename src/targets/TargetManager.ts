@@ -101,8 +101,14 @@ export class TargetManager {
       return null;
     }
 
-    // Generate spawn position
-    const position = this.generateSpawnPosition();
+    // Generate spawn position with overlap checking
+    const position = this.generateNonOverlappingSpawnPosition(targetType);
+    if (!position) {
+      // Could not find non-overlapping position after multiple attempts
+      mesh.visible = false;
+      return null;
+    }
+
     mesh.position.copy(position);
     mesh.visible = true;
 
@@ -135,6 +141,31 @@ export class TargetManager {
   private getRandomTargetType(): TargetType {
     const types = this.settings.targetTypes;
     return types[Math.floor(Math.random() * types.length)];
+  }
+
+  private generateNonOverlappingSpawnPosition(type: TargetType): THREE.Vector3 | null {
+    const MIN_DISTANCE = 3.0; // Minimum distance between targets (meters)
+    const MAX_ATTEMPTS = 20;
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const position = this.generateSpawnPosition();
+
+      // Check if position overlaps with existing targets
+      let hasOverlap = false;
+      this.targets.forEach(target => {
+        const distance = position.distanceTo(target.mesh.position);
+        if (distance < MIN_DISTANCE) {
+          hasOverlap = true;
+        }
+      });
+
+      if (!hasOverlap) {
+        return position;
+      }
+    }
+
+    // Could not find non-overlapping position
+    return null;
   }
 
   private generateSpawnPosition(): THREE.Vector3 {

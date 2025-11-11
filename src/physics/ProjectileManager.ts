@@ -5,7 +5,7 @@ export class ProjectileManager {
   private scene: THREE.Scene;
   private projectiles: Map<string, ProjectileInstance> = new Map();
   private projectilePool: THREE.Mesh[] = [];
-  private readonly PROJECTILE_SPEED = 50; // m/s
+  private readonly PROJECTILE_SPEED = 25; // m/s
   private readonly MAX_RANGE = 22; // meters
   private readonly BOUNCE_ENABLED = true;
   private readonly MAX_BOUNCES = 3;

@@ -107,7 +107,7 @@ export class FirstPersonControls {
   public update(delta: number): void {
     if (!this.isLocked) return;
 
-    const moveSpeed = 4.5; // meters per second
+    const moveSpeed = 3.0; // meters per second
 
     // Apply friction
     this.velocity.x -= this.velocity.x * 10.0 * delta;
