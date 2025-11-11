@@ -73,18 +73,21 @@ export class Engine {
     const floorMaterial = new THREE.MeshStandardMaterial({
       color: 0x1a1a1a,
       roughness: 0.8,
-      metalness: 0.2
+      metalness: 0.2,
+      side: THREE.DoubleSide
     });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
+    floor.userData = { isWall: true };
     this.scene.add(floor);
 
     // Create arena walls (simple box)
     const wallMaterial = new THREE.MeshStandardMaterial({
       color: 0x2a2a2a,
       roughness: 0.9,
-      metalness: 0.1
+      metalness: 0.1,
+      side: THREE.DoubleSide
     });
 
     // Back wall
@@ -94,6 +97,7 @@ export class Engine {
     );
     backWall.position.set(0, 10, -20);
     backWall.receiveShadow = true;
+    backWall.userData = { isWall: true };
     this.scene.add(backWall);
 
     // Left wall
@@ -104,6 +108,7 @@ export class Engine {
     leftWall.position.set(-20, 10, 0);
     leftWall.rotation.y = Math.PI / 2;
     leftWall.receiveShadow = true;
+    leftWall.userData = { isWall: true };
     this.scene.add(leftWall);
 
     // Right wall
@@ -114,6 +119,7 @@ export class Engine {
     rightWall.position.set(20, 10, 0);
     rightWall.rotation.y = -Math.PI / 2;
     rightWall.receiveShadow = true;
+    rightWall.userData = { isWall: true };
     this.scene.add(rightWall);
 
     // Ceiling
@@ -124,6 +130,7 @@ export class Engine {
     ceiling.position.set(0, 20, 0);
     ceiling.rotation.x = Math.PI / 2;
     ceiling.receiveShadow = true;
+    ceiling.userData = { isWall: true };
     this.scene.add(ceiling);
 
     // Add grid helper for spatial reference

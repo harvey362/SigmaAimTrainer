@@ -43,22 +43,22 @@ export class TargetManager {
         size = 1.0;
         break;
       case 'flying-bot':
-        geometry = new THREE.SphereGeometry(0.6, 16, 16);
+        geometry = new THREE.SphereGeometry(0.6, 32, 32);
         color = 0x44ff44;
         size = 1.2;
         break;
       case 'small':
-        geometry = new THREE.SphereGeometry(0.4, 16, 16);
+        geometry = new THREE.SphereGeometry(0.4, 32, 32);
         color = 0xffaa44;
         size = 0.8;
         break;
       case 'medium':
-        geometry = new THREE.SphereGeometry(0.6, 16, 16);
+        geometry = new THREE.SphereGeometry(0.6, 32, 32);
         color = 0xff4444;
         size = 1.0;
         break;
       case 'large':
-        geometry = new THREE.SphereGeometry(0.9, 16, 16);
+        geometry = new THREE.SphereGeometry(0.9, 32, 32);
         color = 0xff44aa;
         size = 1.2;
         break;
