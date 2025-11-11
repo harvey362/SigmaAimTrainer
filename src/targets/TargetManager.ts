@@ -178,9 +178,19 @@ export class TargetManager {
     const verticalMin = this.settings.spawnRangeVertical.min * (Math.PI / 180);
     const verticalMax = this.settings.spawnRangeVertical.max * (Math.PI / 180);
 
-    // Random angles within range
+    // Random horizontal angle
     const horizontalAngle = (Math.random() - 0.5) * horizontalRange;
-    const verticalAngle = verticalMin + Math.random() * (verticalMax - verticalMin);
+
+    // Weighted vertical angle - 95% near head level (±5 degrees), 5% in full range
+    let verticalAngle: number;
+    if (Math.random() < 0.95) {
+      // 95% of targets spawn near head level (±5 degrees)
+      const headLevelRange = 5 * (Math.PI / 180); // ±5 degrees
+      verticalAngle = (Math.random() - 0.5) * headLevelRange * 2;
+    } else {
+      // 5% can spawn in the full vertical range
+      verticalAngle = verticalMin + Math.random() * (verticalMax - verticalMin);
+    }
 
     // Random distance (10-20 meters from camera)
     const distance = 10 + Math.random() * 10;

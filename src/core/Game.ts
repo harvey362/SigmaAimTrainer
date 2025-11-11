@@ -7,6 +7,7 @@ import { ProjectileManager } from '@/physics/ProjectileManager';
 import { WeaponSystem } from '@/physics/WeaponSystem';
 import { TargetManager } from '@/targets/TargetManager';
 import { HitInfo } from '@/physics/ProjectileManager';
+import { AudioManager } from '@/audio/AudioManager';
 
 export class Game {
   private engine: Engine;
@@ -22,6 +23,7 @@ export class Game {
   private targetManager: TargetManager | null = null;
   private sessionManager: SessionManager;
   private livesSystem: LivesSystem;
+  private audioManager: AudioManager;
 
   // Session stats
   private currentSession: SessionConfig | null = null;
@@ -53,6 +55,11 @@ export class Game {
     // Initialize session and lives systems
     this.sessionManager = new SessionManager();
     this.livesSystem = new LivesSystem(false, 3);
+
+    // Initialize audio system
+    this.audioManager = new AudioManager();
+    this.audioManager.setMasterVolume(this.settings.audio.masterVolume);
+    this.audioManager.setHitSoundVolume(this.settings.audio.hitSoundVolume);
 
     // Setup session callbacks
     this.setupSessionCallbacks();
@@ -271,8 +278,8 @@ export class Game {
     if (this.targetManager?.destroyTarget(hitInfo.targetId)) {
       this.sessionStats.hits++;
 
-      // Visual feedback (to be enhanced)
-      // TODO: Play hit sound, show hit marker, etc.
+      // Play hit sound
+      this.audioManager.playHitSound();
     }
   }
 
@@ -400,6 +407,12 @@ export class Game {
     if (settings.controls?.mouseSensitivity) {
       this.controls.setSensitivity(settings.controls.mouseSensitivity);
     }
+    if (settings.audio?.masterVolume !== undefined) {
+      this.audioManager.setMasterVolume(settings.audio.masterVolume);
+    }
+    if (settings.audio?.hitSoundVolume !== undefined) {
+      this.audioManager.setHitSoundVolume(settings.audio.hitSoundVolume);
+    }
   }
 
   public getSettings(): GameSettings {
@@ -435,6 +448,7 @@ export class Game {
     this.weaponSystem?.reset();
     this.projectileManager?.dispose();
     this.targetManager?.dispose();
+    this.audioManager.dispose();
     this.controls.dispose();
     this.engine.dispose();
   }

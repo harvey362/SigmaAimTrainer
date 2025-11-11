@@ -422,6 +422,24 @@ input[type="range"]::-moz-range-thumb:hover {
   color: var(--color-primary);
 }
 
+.slider-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.slider-group input[type="range"] {
+  flex: 1;
+}
+
+.slider-value {
+  min-width: 50px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: 16px;
+}
+
 .toggle-group {
   display: flex;
   align-items: center;

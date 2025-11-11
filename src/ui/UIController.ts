@@ -113,6 +113,20 @@ export class UIController {
       });
     });
 
+    // Attack speed slider
+    const attackSpeedSlider = document.getElementById('attack-speed') as HTMLInputElement;
+    const attackSpeedValue = document.getElementById('attack-speed-value');
+
+    attackSpeedSlider?.addEventListener('input', () => {
+      const value = parseFloat(attackSpeedSlider.value);
+      if (attackSpeedValue) {
+        attackSpeedValue.textContent = `${value.toFixed(1)}x`;
+      }
+      if (this.currentConfig.weaponModifiers) {
+        this.currentConfig.weaponModifiers.attackSpeed = value;
+      }
+    });
+
     // Lives system toggle
     const livesCheckbox = document.getElementById('lives-enabled') as HTMLInputElement;
     const livesCount = document.getElementById('lives-count') as HTMLInputElement;
